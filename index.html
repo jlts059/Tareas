@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spanish Sentences Practice</title>
+<title>Classroom Flashcards</title>
 
 <style>
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f0f4f8;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    background-color: #f0f2f5;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -18,51 +18,69 @@
     padding: 20px;
   }
 
+  /* This is the new style for your live QR code box */
+  #classroom-qr-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 200px; /* Size matching your red box */
+    height: 200px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
+  #classroom-qr-container img {
+    max-width: 100%;
+    max-height: 100%;
+    border: none;
+  }
+
+  /* Your existing flashcard styles (from your previous work) */
+  #instruction {
+    margin-bottom: 0.5rem;
+    color: #546e7a;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: -120px; /* Moves instructions up, now that card is centered */
+  }
+
+  .progress {
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    color: #90a4ae;
+  }
+
   #card {
     background: white;
     border-radius: 20px;
     padding: 2.5rem 1.5rem;
     max-width: 500px;
     width: 90%;
-    min-height: 200px;
+    min-height: 250px; /* Taller card for presentation */
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 1.4rem;
+    font-size: 1.6rem;
     line-height: 1.5;
     cursor: pointer;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     transition: transform 0.1s ease, background 0.2s ease;
-    border-bottom: 6px solid #2c3e50;
-    margin-bottom: 20px;
+    border-bottom: 8px solid #2c3e50;
+    margin-bottom: 40px;
   }
 
-  #card:active {
-    transform: scale(0.98);
-  }
+  #card:active { transform: scale(0.98); }
 
-  #instruction {
-    margin-bottom: 1rem;
-    color: #546e7a;
-    font-weight: 500;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-
-  .progress {
-    margin-bottom: 10px;
-    font-size: 0.9rem;
-    color: #90a4ae;
-  }
-
-  .controls {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+  .controls { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
 
   button {
     padding: 0.8rem 1.5rem;
@@ -70,19 +88,14 @@
     border-radius: 8px;
     border: none;
     cursor: pointer;
-    transition: all 0.2s;
     font-weight: bold;
+    transition: all 0.2s;
   }
 
   .btn-next {
     background: #2c3e50;
     color: white;
     box-shadow: 0 4px 0 #1a252f;
-  }
-
-  .btn-next:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 #1a252f;
   }
 
   .btn-shuffle {
@@ -95,10 +108,24 @@
     cursor: not-allowed;
     box-shadow: none;
   }
+
+  /* To handle overlapping if the window is small */
+  @media (max-width: 900px) {
+    #classroom-qr-container {
+      position: static;
+      margin-bottom: 30px;
+      width: 150px;
+      height: 150px;
+    }
+  }
 </style>
 </head>
 
-<body>
+<body onload="generateClassroomQR()">
+
+<div id="classroom-qr-container">
+  <div id="loading-qr" style="color:#666; font-size:0.9rem;">Loading QR...</div>
+  </div>
 
 <div id="instruction">Tap the card to flip</div>
 <div class="progress" id="progress">Card 1 of 16</div>
@@ -111,6 +138,7 @@
 </div>
 
 <script>
+// --- CORE DECK LOGIC (Same as you have now) ---
 const originalDeck = [
   { es: "Estoy acostumbrado al ruido.", en: "I am used to the noise." },
   { es: "Solía ir andando al trabajo.", en: "I used to walk to work." },
@@ -134,34 +162,28 @@ let deck = [];
 let currentIndex = 0;
 let isFlipped = false;
 
-const cardElement = document.getElementById("card");
-const progressElement = document.getElementById("progress");
-const nextBtn = document.getElementById("nextBtn");
-
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
-}
+function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
 function resetDeck() {
   deck = shuffle([...originalDeck]);
   currentIndex = 0;
   isFlipped = false;
-  nextBtn.disabled = false;
+  document.getElementById("nextBtn").disabled = false;
   updateDisplay();
 }
 
 function updateDisplay() {
   const current = deck[currentIndex];
-  progressElement.textContent = `Card ${currentIndex + 1} of ${deck.length}`;
-  
+  document.getElementById("progress").textContent = `Card ${currentIndex + 1} of ${deck.length}`;
+  const card = document.getElementById("card");
   if (!isFlipped) {
-    cardElement.textContent = current.es;
-    cardElement.style.background = "white";
-    cardElement.style.color = "#2c3e50";
+    card.textContent = current.es;
+    card.style.background = "white";
+    card.style.color = "#2c3e50";
   } else {
-    cardElement.textContent = current.en;
-    cardElement.style.background = "#eef6ff";
-    cardElement.style.color = "#1565c0";
+    card.textContent = current.en;
+    card.style.background = "#eef6ff";
+    card.style.color = "#1565c0";
   }
 }
 
@@ -177,14 +199,35 @@ function nextCard() {
     isFlipped = false;
     updateDisplay();
   } else {
-    cardElement.innerHTML = "<b>Excellent work!</b><br>You've finished the deck.";
-    cardElement.style.background = "#d4edda";
-    nextBtn.disabled = true;
+    document.getElementById("card").innerHTML = "<b>Excellent work!</b><br>You've finished the deck.";
+    document.getElementById("card").style.background = "#d4edda";
+    document.getElementById("nextBtn").disabled = true;
     currentIndex = -1;
   }
 }
 
-// Start
+// --- NEW CLASSROOM QR LOGIC ---
+function generateClassroomQR() {
+  // 1. Get the current URL of the page (e.g., your-username.github.io/your-repo/)
+  const currentUrl = window.location.href;
+  
+  // 2. Create the URL for the free quickchart.io QR code API
+  const qrApiUrl = `https://quickchart.io/qr?text=${encodeURIComponent(currentUrl)}&size=200&margin=1`;
+  
+  // 3. Create an image element and set its source to that API URL
+  const qrImg = new Image();
+  qrImg.src = qrApiUrl;
+  qrImg.alt = "Scan to view flashcards on your device";
+  
+  // 4. When the image is done loading, swap it for the 'Loading' text
+  qrImg.onload = function() {
+    const container = document.getElementById("classroom-qr-container");
+    container.innerHTML = ""; // Clear 'Loading...'
+    container.appendChild(qrImg);
+  };
+}
+
+// Start everything
 resetDeck();
 </script>
 
