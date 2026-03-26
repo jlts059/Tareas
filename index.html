@@ -33,51 +33,82 @@
     line-height: 1.5;
     cursor: pointer;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    transition: transform 0.1s ease;
+    transition: transform 0.1s ease, background 0.2s ease;
     border-bottom: 6px solid #2c3e50;
+    margin-bottom: 20px;
   }
 
   #card:active {
-    transform: scale(0.97);
+    transform: scale(0.98);
   }
 
   #instruction {
-    margin-top: 2rem;
+    margin-bottom: 1rem;
     color: #546e7a;
     font-weight: 500;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 
   .progress {
-    margin-bottom: 1rem;
+    margin-bottom: 10px;
     font-size: 0.9rem;
     color: #90a4ae;
   }
 
+  .controls {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
   button {
-    margin-top: 2rem;
     padding: 0.8rem 1.5rem;
     font-size: 1rem;
     border-radius: 8px;
     border: none;
-    background: #2c3e50;
-    color: white;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.2s;
+    font-weight: bold;
   }
 
-  button:hover {
-    background: #455a64;
+  .btn-next {
+    background: #2c3e50;
+    color: white;
+    box-shadow: 0 4px 0 #1a252f;
+  }
+
+  .btn-next:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #1a252f;
+  }
+
+  .btn-shuffle {
+    background: #e0e6ed;
+    color: #2c3e50;
+  }
+
+  button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
   }
 </style>
 </head>
 
 <body>
 
+<div id="instruction">Tap the card to flip</div>
 <div class="progress" id="progress">Card 1 of 16</div>
-<div id="card">Tap to start</div>
-<div id="instruction">Spanish ➔ English</div>
 
-<button onclick="resetDeck()">🔀 Shuffle & Restart</button>
+<div id="card" onclick="flipCard()">Loading...</div>
+
+<div class="controls">
+  <button class="btn-next" id="nextBtn" onclick="nextCard()">Next Card ➔</button>
+  <button class="btn-shuffle" onclick="resetDeck()">🔀 Shuffle</button>
+</div>
 
 <script>
 const originalDeck = [
@@ -100,12 +131,12 @@ const originalDeck = [
 ];
 
 let deck = [];
-let currentIndex = -1;
+let currentIndex = 0;
 let isFlipped = false;
 
 const cardElement = document.getElementById("card");
-const instructionElement = document.getElementById("instruction");
 const progressElement = document.getElementById("progress");
+const nextBtn = document.getElementById("nextBtn");
 
 function shuffle(array) {
   return array.sort(() => Math.random() - 0.5);
@@ -115,48 +146,45 @@ function resetDeck() {
   deck = shuffle([...originalDeck]);
   currentIndex = 0;
   isFlipped = false;
+  nextBtn.disabled = false;
   updateDisplay();
 }
 
 function updateDisplay() {
-  if (currentIndex >= deck.length) {
-    cardElement.innerHTML = "<b>Excellent work!</b><br>You've finished the deck.";
-    instructionElement.textContent = "Click shuffle to try again";
-    progressElement.textContent = "Finished";
-    currentIndex = -1;
-    return;
-  }
-
   const current = deck[currentIndex];
   progressElement.textContent = `Card ${currentIndex + 1} of ${deck.length}`;
   
   if (!isFlipped) {
     cardElement.textContent = current.es;
+    cardElement.style.background = "white";
     cardElement.style.color = "#2c3e50";
-    instructionElement.textContent = "Tap to see translation";
   } else {
     cardElement.textContent = current.en;
+    cardElement.style.background = "#eef6ff";
     cardElement.style.color = "#1565c0";
-    instructionElement.textContent = "Tap for next card";
   }
 }
 
-cardElement.addEventListener("click", () => {
-  if (currentIndex === -1) {
-    resetDeck();
-    return;
-  }
+function flipCard() {
+  if (currentIndex === -1) return;
+  isFlipped = !isFlipped;
+  updateDisplay();
+}
 
-  if (!isFlipped) {
-    isFlipped = true;
-  } else {
+function nextCard() {
+  if (currentIndex < deck.length - 1) {
     currentIndex++;
     isFlipped = false;
+    updateDisplay();
+  } else {
+    cardElement.innerHTML = "<b>Excellent work!</b><br>You've finished the deck.";
+    cardElement.style.background = "#d4edda";
+    nextBtn.disabled = true;
+    currentIndex = -1;
   }
-  updateDisplay();
-});
+}
 
-// Initial call to set up the first card
+// Start
 resetDeck();
 </script>
 
