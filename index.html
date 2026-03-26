@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spanish Sentences Practice</title>
+
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+
+  #card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem 1.5rem;
+    max-width: 500px;
+    width: 90%;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.4rem;
+    line-height: 1.5;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.1s ease;
+    border-bottom: 6px solid #2c3e50;
+  }
+
+  #card:active {
+    transform: scale(0.97);
+  }
+
+  #instruction {
+    margin-top: 2rem;
+    color: #546e7a;
+    font-weight: 500;
+  }
+
+  .progress {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #90a4ae;
+  }
+
+  button {
+    margin-top: 2rem;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: none;
+    background: #2c3e50;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  button:hover {
+    background: #455a64;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="progress" id="progress">Card 1 of 16</div>
+<div id="card">Tap to start</div>
+<div id="instruction">Spanish ➔ English</div>
+
+<button onclick="resetDeck()">🔀 Shuffle & Restart</button>
+
+<script>
+const originalDeck = [
+  { es: "Estoy acostumbrado al ruido.", en: "I am used to the noise." },
+  { es: "Solía ir andando al trabajo.", en: "I used to walk to work." },
+  { es: "Solía llover más en mayo que en abril.", en: "It used to rain more in May than in April." },
+  { es: "Voy al gimnasio dos veces a la semana.", en: "I go to the gym twice a week." },
+  { es: "Solíamos ir al cine todos juntos.", en: "We used to go to the cinema all together." },
+  { es: "Vivía en un pequeño pueblo pesquero.", en: "I used to live in a small fishing village." },
+  { es: "Iba a Londres cuatro o cinco veces al año.", en: "I used to go to London four or five times a year." },
+  { es: "Suelo irme a la cama sobre las 11.30 p. m.", en: "I usually go to bed around 11.30 p.m." },
+  { es: "Antes tenía un PC, pero ahora tengo un Mac.", en: "I used to have a PC but now I have a Mac." },
+  { es: "Pronto tendré que acostumbrarme a planchar.", en: "Soon I will have to get used to ironing." },
+  { es: "Cuando era estudiante, no pertenecía a ningún club", en: "When I was a student I didn't use to belong to any clubs." },
+  { es: "Tardamos un poco en acostumbrarnos a vivir en el campo.", en: "It took us a while to get used to living in the countryside." },
+  { es: "Antes de tener el AVE, a menudo iba a Madrid en coche.", en: "Before the AVE I often used to go to Madrid by car." },
+  { es: "No me acostumbro a tener que pagar la comida en los aviones.", en: "I can't get used to having to pay for food on planes." },
+  { es: "Estamos acostumbrados a tener que traducir cosas para los visitantes.", en: "We are used to having to translate things for visitors." },
+  { es: "Cuando era estudiante los sábados me quedaba levantado toda la noche.", en: "When I was a student I used to stay up all night on Saturdays." }
+];
+
+let deck = [];
+let currentIndex = -1;
+let isFlipped = false;
+
+const cardElement = document.getElementById("card");
+const instructionElement = document.getElementById("instruction");
+const progressElement = document.getElementById("progress");
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+function resetDeck() {
+  deck = shuffle([...originalDeck]);
+  currentIndex = 0;
+  isFlipped = false;
+  updateDisplay();
+}
+
+function updateDisplay() {
+  if (currentIndex >= deck.length) {
+    cardElement.innerHTML = "<b>Excellent work!</b><br>You've finished the deck.";
+    instructionElement.textContent = "Click shuffle to try again";
+    progressElement.textContent = "Finished";
+    currentIndex = -1;
+    return;
+  }
+
+  const current = deck[currentIndex];
+  progressElement.textContent = `Card ${currentIndex + 1} of ${deck.length}`;
+  
+  if (!isFlipped) {
+    cardElement.textContent = current.es;
+    cardElement.style.color = "#2c3e50";
+    instructionElement.textContent = "Tap to see translation";
+  } else {
+    cardElement.textContent = current.en;
+    cardElement.style.color = "#1565c0";
+    instructionElement.textContent = "Tap for next card";
+  }
+}
+
+cardElement.addEventListener("click", () => {
+  if (currentIndex === -1) {
+    resetDeck();
+    return;
+  }
+
+  if (!isFlipped) {
+    isFlipped = true;
+  } else {
+    currentIndex++;
+    isFlipped = false;
+  }
+  updateDisplay();
+});
+
+// Initial call to set up the first card
+resetDeck();
+</script>
+
+</body>
+</html>
