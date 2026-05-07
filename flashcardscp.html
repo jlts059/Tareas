@@ -159,18 +159,19 @@
     <h2 style="color: #2c3e50; margin-top: 0;">Create Your Deck</h2>
     <textarea id="csv-input" placeholder="Term [TAB] Definition"></textarea>
     <button class="btn-start" onclick="loadCustomDeck()">Generate Flashcards ➔</button>
+    <p style="font-size: 0.8rem; color: #7f8c8d; margin-top: 10px;">Shortcut: [Z] Next | [X] Discard | [Space] Flip</p>
   </div>
 
   <div id="flashcard-view">
     <div id="classroom-qr-container"></div>
-    <div id="instruction">Tap the card to flip</div>
+    <div id="instruction">Tap the card to flip (or Space)</div>
     <div class="progress" id="progress">Card 0 of 0</div>
     
     <div id="card" onclick="flipCard()">Loading...</div>
     
     <div class="controls">
-      <button class="btn-next" id="nextBtn" onclick="nextCard()">Next Card ➔</button>
-      <button class="btn-discard" id="discardBtn" onclick="discardCard()">🗑 Discard (Easy)</button>
+      <button class="btn-next" id="nextBtn" onclick="nextCard()">Next Card (Z) ➔</button>
+      <button class="btn-discard" id="discardBtn" onclick="discardCard()">🗑 Discard (X)</button>
       <button class="btn-secondary" onclick="showList()">👁 Show List</button>
       <button class="btn-secondary" onclick="resetDeck()">🔀 Shuffle All</button>
       <button class="btn-review" id="reviewBtn" onclick="reviewRemaining()">🔥 Review Remaining</button>
@@ -194,13 +195,34 @@
 
 <script>
 let originalDeck = []; 
-let activeDeck = []; // The pool of cards actually being looked at
+let activeDeck = []; 
 let currentIndex = 0;
 let isFlipped = false;
 
 window.onload = function() {
     if (originalDeck.length > 0) startApp();
 };
+
+// --- KEYBOARD SHORTCUTS ---
+document.addEventListener('keydown', function(event) {
+  // Ignorar si el usuario está escribiendo en el textarea
+  if (event.target.tagName === 'TEXTAREA') return;
+
+  const key = event.key.toLowerCase();
+  
+  if (key === 'z') {
+    const btn = document.getElementById("nextBtn");
+    if (!btn.disabled) nextCard();
+  } 
+  else if (key === 'x') {
+    const btn = document.getElementById("discardBtn");
+    if (!btn.disabled) discardCard();
+  } 
+  else if (key === ' ') {
+    event.preventDefault(); // Evita scroll
+    flipCard();
+  }
+});
 
 function loadCustomDeck() {
   const input = document.getElementById('csv-input').value.trim();
@@ -221,15 +243,12 @@ function startApp() {
   resetDeck();
 }
 
-// Resets everything back to the original full list
 function resetDeck() {
   activeDeck = [...originalDeck].sort(() => Math.random() - 0.5);
   document.getElementById('reviewBtn').style.display = 'none';
   initSession();
 }
 
-// Starts a new session with whatever is currently in the activeDeck 
-// (used when you finish and want to re-run only the cards you didn't discard)
 function reviewRemaining() {
   if (activeDeck.length === 0) return resetDeck();
   activeDeck = [...activeDeck].sort(() => Math.random() - 0.5);
@@ -255,7 +274,6 @@ function updateDisplay() {
     document.getElementById("nextBtn").disabled = true;
     document.getElementById("discardBtn").disabled = true;
     
-    // If there are still cards left in the active pool, show the review button
     if (activeDeck.length > 0) {
         document.getElementById('reviewBtn').style.display = 'inline-block';
     }
@@ -287,21 +305,18 @@ function nextCard() {
     isFlipped = false;
     updateDisplay();
   } else {
-    currentIndex = activeDeck.length; // Triggers "finished" state
+    currentIndex = activeDeck.length;
     updateDisplay();
   }
 }
 
 function discardCard() {
-  // Remove the current card from the active pool permanently for this session
   activeDeck.splice(currentIndex, 1);
-  
   if (activeDeck.length === 0) {
     updateDisplay();
   } else {
-    // If we discarded the last card in the list, move the index back
     if (currentIndex >= activeDeck.length) {
-        currentIndex = activeDeck.length; // Show finished screen
+        currentIndex = activeDeck.length;
     }
     isFlipped = false;
     updateDisplay();
