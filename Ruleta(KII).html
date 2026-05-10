@@ -1,11 +1,11 @@
 <html lang="es"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruleta Pro Permanente</title>
+    <title>Ruleta Pro Optimizada</title>
     <style>
         :root {
             --bg: #fdfdfd;
-            --text: #475569; /* Gris más oscuro para el título */
+            --text: #475569;
             --accent: #e2e8f0;
             --button-bg: #f1f5f9;
             --button-hover: #e2e8f0;
@@ -20,73 +20,78 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
-            overflow: hidden;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
-        /* QR arriba a la derecha */
+        /* QR Ajustado para no tapar en móvil */
         .qr-container {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 10px;
+            right: 10px;
             text-align: center;
             background: white;
-            padding: 10px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             z-index: 100;
         }
-        .qr-container img { width: 70px; height: 70px; display: block; }
+        .qr-container img { width: 50px; height: 50px; display: block; }
+        .qr-label { font-size: 0.4rem; font-weight: bold; margin-top: 2px; }
 
-        /* Título más visible */
+        @media (min-width: 768px) {
+            .qr-container { top: 20px; right: 20px; padding: 10px; }
+            .qr-container img { width: 70px; height: 70px; }
+            .qr-label { font-size: 0.5rem; }
+        }
+
         #main-title {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             color: var(--text);
             font-weight: 800;
-            letter-spacing: -1px;
-            text-transform: none;
-            margin-bottom: 0px;
+            margin-top: 40px;
+            margin-bottom: 5px;
             text-align: center;
+            padding: 0 60px; /* Espacio para que el QR no lo pise */
         }
 
         #resultado-display {
-            height: 140px;
+            height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 3.5rem;
+            font-size: 2.2rem;
             font-weight: 800;
             color: var(--result-color);
-            max-width: 90vw;
+            width: 100%;
             line-height: 1.1;
-            transition: opacity 0.4s ease;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         #ruleta-wrapper {
             position: relative;
-            margin: 10px 0;
+            margin: 5px 0;
         }
 
         #aguja {
             position: absolute;
-            top: -15px;
+            top: -12px;
             left: 50%;
             transform: translateX(-50%);
-            border-left: 14px solid transparent;
-            border-right: 14px solid transparent;
-            border-top: 24px solid var(--needle-color);
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 20px solid var(--needle-color);
             z-index: 10;
-            transition: all 0.3s;
         }
 
         .parpadeo-aguja {
             animation: blink 0.4s infinite alternate;
             border-top-color: var(--result-color) !important;
-            filter: drop-shadow(0 0 10px var(--result-color));
         }
 
         @keyframes blink {
@@ -95,8 +100,8 @@
         }
 
         #ruleta-circulo {
-            width: 200px;
-            height: 200px;
+            width: 180px;
+            height: 180px;
             border-radius: 50%;
             border: 4px solid var(--accent);
             background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
@@ -111,75 +116,70 @@
             to { transform: rotate(720deg); }
         }
 
-        .setup-container {
-            width: 100%;
-            max-width: 400px;
-            margin-top: 20px;
-        }
-
-        textarea {
-            width: 100%;
-            height: 100px;
-            padding: 15px;
-            border: 1px solid var(--accent);
-            border-radius: 15px;
-            font-size: 1rem;
-            background: #fff;
-            resize: none;
-            outline: none;
-            color: var(--text);
-            box-sizing: border-box;
-        }
-
         .actions {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
-            margin-top: 20px;
+            margin-top: 15px;
+            width: 100%;
         }
 
         .btn-spin {
             background-color: var(--button-bg);
             border: 1px solid var(--accent);
-            width: 75px;
-            height: 75px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            order: 1; /* Forzamos que vaya primero */
         }
 
-        .btn-spin:hover { transform: scale(1.1); background-color: var(--button-hover); }
-        .btn-spin svg { width: 32px; height: 32px; fill: var(--text); }
+        .btn-spin svg { width: 28px; height: 28px; fill: var(--text); }
+
+        .setup-container {
+            width: 100%;
+            max-width: 350px;
+            order: 2; /* Va después del botón */
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 12px;
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            background: #fff;
+            color: var(--text);
+            box-sizing: border-box;
+        }
 
         .btn-download {
             background: #f1f5f9;
             border: 1px solid var(--accent);
             color: #64748b;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 20px;
             cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.2s;
+            order: 3;
         }
-
-        .btn-download:hover { background: #e2e8f0; color: #475569; }
-
-        .hidden { display: none !important; }
 
         .contador {
-            margin-top: 10px;
-            font-size: 0.8rem;
+            margin-top: 8px;
+            font-size: 0.75rem;
             font-weight: 600;
             color: #94a3b8;
+            order: 4;
         }
+
+        .hidden { display: none !important; }
     </style>
 <style>
   .imageye-selected {
@@ -190,22 +190,27 @@
 <body>
 
     <div class="qr-container" id="qrSection">
-        <img id="qrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&amp;data=https%3A%2F%2Fjlts059.github.io%2FTareas%2FRuleta%2520(me%2520queda%2520probarlo%2520con%2520el%2520m%25C3%25B3vil).html" alt="QR">
-        <div style="font-size: 0.5rem; margin-top: 4px; font-weight: bold;">COMPARTIR</div>
+        <img id="qrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&amp;data=https%3A%2F%2Fjlts059.github.io%2FTareas%2FRuleta.html" alt="QR">
+        <div class="qr-label">COMPARTIR</div>
     </div>
 
-    <div id="main-title">Was würdest du im Sommer machen, wenn... ?</div>
+    <div id="main-title">Was würdest du im Sommer machen, wenn… ?</div>
     <div id="resultado-display">...</div>
 
     <div id="ruleta-wrapper">
         <div id="aguja"></div>
         <div id="ruleta-circulo">
-            <div style="width:12px; height:12px; background:white; border-radius:50%; box-shadow: 0 0 10px rgba(0,0,0,0.1)"></div>
+            <div style="width:10px; height:10px; background:white; border-radius:50%;"></div>
         </div>
     </div>
 
-    <div id="setup" class="setup-container">
-        <textarea id="inputFrases" placeholder="Escribe tus frases (una por línea)...">... du im Lotto gewinnen würdest?
+    <div class="actions">
+        <button class="btn-spin" onclick="girar()" id="btnGirar">
+            <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"></path></svg>
+        </button>
+
+        <div id="setup" class="setup-container">
+            <textarea id="inputFrases" placeholder="Frases (una por línea)...">... du im Lotto gewinnen würdest?
 ... du drei Monate Urlaub hättest?
 ... du ein Haus am Meer hättest?
 ... du absolut kein Geld hättest?
@@ -217,19 +222,15 @@
 ... du ein berühmter Influencer wärst?
 ... du kein Internet oder Handy hättest?
 ... du die ganze Welt bereisen könntest? Wohin würdest du reisen?</textarea>
-    </div>
+        </div>
 
-    <div class="actions">
-        <button class="btn-spin" onclick="girar()" id="btnGirar">
-            <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"></path></svg>
-        </button>
         <button class="btn-download" id="btnDownload" onclick="descargarHTML()">Descargar en HTML</button>
+        
+        <div id="contador-vivos" class="contador"></div>
     </div>
-    
-    <div id="contador-vivos" class="contador"></div>
 
     <script>
-        let frasesOriginales = ""; // Guardaremos la lista completa aquí
+        let frasesOriginales = "";
         let frases = [];
         let anguloActual = 0;
         let ultimaGanadora = null;
@@ -241,8 +242,7 @@
                 const promptTitle = prompt("¿Título de la ruleta?");
                 if (promptTitle) titleDiv.innerText = promptTitle;
             }
-            const qrImg = document.getElementById('qrCode');
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href)}`;
+            document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href)}`;
         };
 
         function girar() {
@@ -254,10 +254,9 @@
             const contador = document.getElementById('contador-vivos');
 
             if (!configurado) {
-                frasesOriginales = input.value; // Respaldamos todo antes de empezar a borrar
+                frasesOriginales = input.value;
                 frases = input.value.split('\n').filter(f => f.trim() !== "");
-                if (frases.length === 0) return alert("Añade frases primero");
-                
+                if (frases.length === 0) return alert("Escribe frases primero");
                 setupDiv.classList.add('hidden');
                 configurado = true;
             }
@@ -270,15 +269,12 @@
             if (frases.length === 0) {
                 display.innerText = "¡FIN!";
                 document.getElementById('btnGirar').classList.add('hidden');
-                contador.innerText = "No quedan más elementos.";
                 return;
             }
 
             aguja.classList.add('parpadeo-aguja');
-            ruleta.style.animation = "none";
             display.style.opacity = "0.2";
-            
-            anguloActual += 1800 + Math.floor(Math.random() * 1800);
+            anguloActual += 1440 + Math.floor(Math.random() * 1440);
             ruleta.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.15, 1)";
             ruleta.style.transform = `rotate(${anguloActual}deg)`;
 
@@ -293,28 +289,23 @@
         }
 
         function descargarHTML() {
-            // Si ya hemos empezado a girar, usamos frasesOriginales. Si no, lo que haya en el textarea.
             const contentToSave = configurado ? frasesOriginales : document.getElementById('inputFrases').value;
             const currentTitle = document.getElementById('main-title').innerText;
-            
             const docClone = document.documentElement.cloneNode(true);
             
-            // Aseguramos que el HTML descargado tenga la caja de texto con todas las frases
-            const textareaClone = docClone.querySelector('#inputFrases');
-            textareaClone.textContent = contentToSave;
+            docClone.querySelector('#inputFrases').textContent = contentToSave;
             docClone.querySelector('#main-title').textContent = currentTitle;
-            
-            // Limpiamos estados de ejecución en la copia para que el nuevo archivo empiece de cero
             docClone.querySelector('#setup').classList.remove('hidden');
             docClone.querySelector('#resultado-display').innerText = "...";
-            docClone.querySelector('#contador-vivos').innerText = "";
+            docClone.querySelector('#btnGirar').classList.remove('hidden');
             
             const blob = new Blob([docClone.outerHTML], { type: 'text/html' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'mi_ruleta_completa.html';
+            a.download = 'ruleta_movil.html';
             a.click();
         }
     </script>
+
 
 </body><text-blaze-app-reference style="display: contents !important;" role="none"></text-blaze-app-reference></html>
