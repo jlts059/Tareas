@@ -151,3 +151,146 @@
 
         textarea {
             width: 100%;
+            height: 80px;
+            padding: 12px;
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            font-size: 0.9rem;
+            background: #fff;
+            color: var(--text);
+            box-sizing: border-box;
+        }
+
+        .btn-download {
+            background: #f1f5f9;
+            border: 1px solid var(--accent);
+            color: #64748b;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            order: 3;
+        }
+
+        .contador {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #94a3b8;
+            order: 4;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="qr-container" id="qrSection">
+        <img id="qrCode" src="" alt="QR">
+        <div class="qr-label">COMPARTIR</div>
+    </div>
+
+    <div id="main-title"></div>
+    <div id="resultado-display">...</div>
+
+    <div id="ruleta-wrapper">
+        <div id="aguja"></div>
+        <div id="ruleta-circulo">
+            <div style="width:10px; height:10px; background:white; border-radius:50%;"></div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="btn-spin" onclick="girar()" id="btnGirar">
+            <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+        </button>
+
+        <div id="setup" class="setup-container">
+            <textarea id="inputFrases" placeholder="Frases (una por línea)..."></textarea>
+        </div>
+
+        <button class="btn-download" id="btnDownload" onclick="descargarHTML()">Descargar en HTML</button>
+        
+        <div id="contador-vivos" class="contador"></div>
+    </div>
+
+    <script>
+        let frasesOriginales = "";
+        let frases = [];
+        let anguloActual = 0;
+        let ultimaGanadora = null;
+        let configurado = false;
+
+        window.onload = () => {
+            const titleDiv = document.getElementById('main-title');
+            if (!titleDiv.innerText.trim()) {
+                const promptTitle = prompt("¿Título de la ruleta?");
+                if (promptTitle) titleDiv.innerText = promptTitle;
+            }
+            document.getElementById('qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href)}`;
+        };
+
+        function girar() {
+            const input = document.getElementById('inputFrases');
+            const setupDiv = document.getElementById('setup');
+            const display = document.getElementById('resultado-display');
+            const ruleta = document.getElementById('ruleta-circulo');
+            const aguja = document.getElementById('aguja');
+            const contador = document.getElementById('contador-vivos');
+
+            if (!configurado) {
+                frasesOriginales = input.value;
+                frases = input.value.split('\n').filter(f => f.trim() !== "");
+                if (frases.length === 0) return alert("Escribe frases primero");
+                setupDiv.classList.add('hidden');
+                configurado = true;
+            }
+
+            if (ultimaGanadora) {
+                const idx = frases.indexOf(ultimaGanadora);
+                if (idx > -1) frases.splice(idx, 1);
+            }
+
+            if (frases.length === 0) {
+                display.innerText = "¡FIN!";
+                document.getElementById('btnGirar').classList.add('hidden');
+                return;
+            }
+
+            aguja.classList.add('parpadeo-aguja');
+            display.style.opacity = "0.2";
+            anguloActual += 1440 + Math.floor(Math.random() * 1440);
+            ruleta.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.15, 1)";
+            ruleta.style.transform = `rotate(${anguloActual}deg)`;
+
+            setTimeout(() => {
+                aguja.classList.remove('parpadeo-aguja');
+                const indice = Math.floor(Math.random() * frases.length);
+                ultimaGanadora = frases[indice];
+                display.innerText = ultimaGanadora;
+                display.style.opacity = "1";
+                contador.innerText = `${frases.length - 1} RESTANTES`;
+            }, 4000);
+        }
+
+        function descargarHTML() {
+            const contentToSave = configurado ? frasesOriginales : document.getElementById('inputFrases').value;
+            const currentTitle = document.getElementById('main-title').innerText;
+            const docClone = document.documentElement.cloneNode(true);
+            
+            docClone.querySelector('#inputFrases').textContent = contentToSave;
+            docClone.querySelector('#main-title').textContent = currentTitle;
+            docClone.querySelector('#setup').classList.remove('hidden');
+            docClone.querySelector('#resultado-display').innerText = "...";
+            docClone.querySelector('#btnGirar').classList.remove('hidden');
+            
+            const blob = new Blob([docClone.outerHTML], { type: 'text/html' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'ruleta_movil.html';
+            a.click();
+        }
+    </script>
+</body>
+</html>
