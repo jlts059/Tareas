@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruleta Pro Optimizada</title>
+    <style>
+        :root {
+            --bg: #fdfdfd;
+            --text: #475569;
+            --accent: #e2e8f0;
+            --button-bg: #f1f5f9;
+            --button-hover: #e2e8f0;
+            --result-color: #ec4899;
+            --needle-color: #94a3b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* QR Ajustado para no tapar en móvil */
+        .qr-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            text-align: center;
+            background: white;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+        .qr-container img { width: 50px; height: 50px; display: block; }
+        .qr-label { font-size: 0.4rem; font-weight: bold; margin-top: 2px; }
+
+        @media (min-width: 768px) {
+            .qr-container { top: 20px; right: 20px; padding: 10px; }
+            .qr-container img { width: 70px; height: 70px; }
+            .qr-label { font-size: 0.5rem; }
+        }
+
+        #main-title {
+            font-size: 1.8rem;
+            color: var(--text);
+            font-weight: 800;
+            margin-top: 40px;
+            margin-bottom: 5px;
+            text-align: center;
+            padding: 0 60px; /* Espacio para que el QR no lo pise */
+        }
+
+        #resultado-display {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--result-color);
+            width: 100%;
+            line-height: 1.1;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        #ruleta-wrapper {
+            position: relative;
+            margin: 5px 0;
+        }
+
+        #aguja {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 20px solid var(--needle-color);
+            z-index: 10;
+        }
+
+        .parpadeo-aguja {
+            animation: blink 0.4s infinite alternate;
+            border-top-color: var(--result-color) !important;
+        }
+
+        @keyframes blink {
+            from { opacity: 1; transform: translateX(-50%) scale(1.1); }
+            to { opacity: 0.5; transform: translateX(-50%) scale(1); }
+        }
+
+        #ruleta-circulo {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 4px solid var(--accent);
+            background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: introSpin 2s cubic-bezier(0.2, 0, 0.2, 1);
+        }
+
+        @keyframes introSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(720deg); }
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .btn-spin {
+            background-color: var(--button-bg);
+            border: 1px solid var(--accent);
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            order: 1; /* Forzamos que vaya primero */
+        }
+
+        .btn-spin svg { width: 28px; height: 28px; fill: var(--text); }
+
+        .setup-container {
+            width: 100%;
+            max-width: 350px;
+            order: 2; /* Va después del botón */
+        }
+
+        textarea {
+            width: 100%;
