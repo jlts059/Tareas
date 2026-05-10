@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruleta Pro Optimizada</title>
+    <title>Ruleta Minimalista Táctil</title>
     <style>
         :root {
             --bg: #fdfdfd;
             --text: #475569;
             --accent: #e2e8f0;
-            --button-bg: #f1f5f9;
-            --button-hover: #e2e8f0;
             --result-color: #ec4899;
             --needle-color: #94a3b8;
         }
@@ -25,64 +23,63 @@
             justify-content: flex-start;
             min-height: 100vh;
             margin: 0;
-            padding: 10px;
+            padding: 15px;
             box-sizing: border-box;
+            overflow-x: hidden;
         }
 
-        /* QR Ajustado para no tapar en móvil */
+        /* QR Minimalista */
         .qr-container {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            text-align: center;
+            top: 15px;
+            right: 15px;
             background: white;
             padding: 5px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             z-index: 100;
         }
-        .qr-container img { width: 50px; height: 50px; display: block; }
-        .qr-label { font-size: 0.4rem; font-weight: bold; margin-top: 2px; }
+        .qr-container img { width: 55px; height: 55px; display: block; }
 
-        @media (min-width: 768px) {
-            .qr-container { top: 20px; right: 20px; padding: 10px; }
-            .qr-container img { width: 70px; height: 70px; }
-            .qr-label { font-size: 0.5rem; }
-        }
-
+        /* Título con espacio superior */
         #main-title {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             color: var(--text);
             font-weight: 800;
-            margin-top: 40px;
-            margin-bottom: 5px;
+            margin-top: 50px;
+            margin-bottom: 10px;
             text-align: center;
-            padding: 0 60px; /* Espacio para que el QR no lo pise */
+            width: 80%;
+            line-height: 1.2;
         }
 
+        /* Área de resultado con tamaño controlado para no solapar */
         #resultado-display {
-            height: 120px;
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: 800;
             color: var(--result-color);
             width: 100%;
-            line-height: 1.1;
-            padding: 10px;
+            padding: 0 10px;
             box-sizing: border-box;
+            overflow: hidden;
         }
 
+        /* Contenedor de la ruleta */
         #ruleta-wrapper {
             position: relative;
-            margin: 5px 0;
+            margin: 20px 0;
+            cursor: pointer; /* Indica que se puede clicar */
+            -webkit-tap-highlight-color: transparent;
         }
 
         #aguja {
             position: absolute;
-            top: -12px;
+            top: -10px;
             left: 50%;
             transform: translateX(-50%);
             border-left: 12px solid transparent;
@@ -102,51 +99,30 @@
         }
 
         #ruleta-circulo {
-            width: 180px;
-            height: 180px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
-            border: 4px solid var(--accent);
+            border: 6px solid var(--accent);
             background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: introSpin 2s cubic-bezier(0.2, 0, 0.2, 1);
+            transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
         }
 
-        @keyframes introSpin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(720deg); }
+        /* Icono de refresco dentro de la ruleta para invitar al click */
+        #ruleta-circulo::after {
+            content: "↻";
+            font-size: 2rem;
+            color: white;
+            opacity: 0.5;
         }
-
-        .actions {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            align-items: center;
-            margin-top: 15px;
-            width: 100%;
-        }
-
-        .btn-spin {
-            background-color: var(--button-bg);
-            border: 1px solid var(--accent);
-            width: 65px;
-            height: 65px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            order: 1; /* Forzamos que vaya primero */
-        }
-
-        .btn-spin svg { width: 28px; height: 28px; fill: var(--text); }
 
         .setup-container {
             width: 100%;
             max-width: 350px;
-            order: 2; /* Va después del botón */
+            margin-top: 10px;
         }
 
         textarea {
@@ -159,61 +135,58 @@
             background: #fff;
             color: var(--text);
             box-sizing: border-box;
+            resize: none;
         }
 
         .btn-download {
+            margin-top: 15px;
             background: #f1f5f9;
             border: 1px solid var(--accent);
             color: #64748b;
             font-size: 0.7rem;
             font-weight: 600;
-            padding: 6px 14px;
+            padding: 8px 16px;
             border-radius: 20px;
             cursor: pointer;
-            order: 3;
+            text-transform: uppercase;
         }
 
         .contador {
-            margin-top: 8px;
+            margin-top: 10px;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
             color: #94a3b8;
-            order: 4;
+            letter-spacing: 1px;
         }
 
         .hidden { display: none !important; }
+
+        @media (min-width: 768px) {
+            #ruleta-circulo { width: 200px; height: 200px; }
+            #resultado-display { font-size: 3rem; height: 140px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="qr-container" id="qrSection">
         <img id="qrCode" src="" alt="QR">
-        <div class="qr-label">COMPARTIR</div>
     </div>
 
     <div id="main-title"></div>
-    <div id="resultado-display">...</div>
+    <div id="resultado-display">Toca la rueda</div>
 
-    <div id="ruleta-wrapper">
+    <div id="ruleta-wrapper" onclick="girar()">
         <div id="aguja"></div>
-        <div id="ruleta-circulo">
-            <div style="width:10px; height:10px; background:white; border-radius:50%;"></div>
-        </div>
+        <div id="ruleta-circulo"></div>
     </div>
 
-    <div class="actions">
-        <button class="btn-spin" onclick="girar()" id="btnGirar">
-            <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
-        </button>
-
-        <div id="setup" class="setup-container">
-            <textarea id="inputFrases" placeholder="Frases (una por línea)..."></textarea>
-        </div>
-
-        <button class="btn-download" id="btnDownload" onclick="descargarHTML()">Descargar en HTML</button>
-        
-        <div id="contador-vivos" class="contador"></div>
+    <div id="setup" class="setup-container">
+        <textarea id="inputFrases" placeholder="Escribe frases (una por línea)..."></textarea>
     </div>
+
+    <button class="btn-download" onclick="descargarHTML()">Descargar en HTML</button>
+    <div id="contador-vivos" class="contador"></div>
 
     <script>
         let frasesOriginales = "";
@@ -221,6 +194,7 @@
         let anguloActual = 0;
         let ultimaGanadora = null;
         let configurado = false;
+        let girando = false;
 
         window.onload = () => {
             const titleDiv = document.getElementById('main-title');
@@ -232,6 +206,8 @@
         };
 
         function girar() {
+            if (girando) return; // Evita clics múltiples durante el giro
+
             const input = document.getElementById('inputFrases');
             const setupDiv = document.getElementById('setup');
             const display = document.getElementById('resultado-display');
@@ -242,7 +218,10 @@
             if (!configurado) {
                 frasesOriginales = input.value;
                 frases = input.value.split('\n').filter(f => f.trim() !== "");
-                if (frases.length === 0) return alert("Escribe frases primero");
+                if (frases.length === 0) {
+                    alert("Añade frases en la caja de abajo.");
+                    return;
+                }
                 setupDiv.classList.add('hidden');
                 configurado = true;
             }
@@ -254,17 +233,19 @@
 
             if (frases.length === 0) {
                 display.innerText = "¡FIN!";
-                document.getElementById('btnGirar').classList.add('hidden');
+                contador.innerText = "No quedan frases.";
                 return;
             }
 
+            girando = true;
             aguja.classList.add('parpadeo-aguja');
             display.style.opacity = "0.2";
+            
             anguloActual += 1440 + Math.floor(Math.random() * 1440);
-            ruleta.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.15, 1)";
             ruleta.style.transform = `rotate(${anguloActual}deg)`;
 
             setTimeout(() => {
+                girando = false;
                 aguja.classList.remove('parpadeo-aguja');
                 const indice = Math.floor(Math.random() * frases.length);
                 ultimaGanadora = frases[indice];
@@ -282,13 +263,13 @@
             docClone.querySelector('#inputFrases').textContent = contentToSave;
             docClone.querySelector('#main-title').textContent = currentTitle;
             docClone.querySelector('#setup').classList.remove('hidden');
-            docClone.querySelector('#resultado-display').innerText = "...";
-            docClone.querySelector('#btnGirar').classList.remove('hidden');
+            docClone.querySelector('#resultado-display').innerText = "Toca la rueda";
+            docClone.querySelector('#contador-vivos').innerText = "";
             
             const blob = new Blob([docClone.outerHTML], { type: 'text/html' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'ruleta_movil.html';
+            a.download = 'ruleta_pro.html';
             a.click();
         }
     </script>
