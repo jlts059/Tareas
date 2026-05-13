@@ -20,6 +20,7 @@
             font-weight: bold;
         }
         .app-link:hover { background: #eef5ff; border-color: #0366d6; }
+        #loading { color: #666; font-style: italic; }
     </style>
 </head>
 <body>
@@ -27,12 +28,56 @@
     <h1>My Web Projects</h1>
     <p>Select a tool from the list below:</p>
 
-    <div class="link-container">
-        <a href="flashcardscp.html" class="app-link">🗂️ Flashcards App</a>
-        <a href="Ruleta.html" class="app-link">🎲 Ruleta</a>
-        <a href="Drive2QRGen.html" class="app-link">🔳 DriveToQR</a>
-        <a href="Ruleta(KII).html" class="app-link">🎲 Ruleta</a>
+    <div class="link-container" id="project-list">
+        <p id="loading">Cargando herramientas desde GitHub...</p>
         </div>
+
+    <script>
+        const repoOwner = 'jlts059';
+        const repoName = 'Tareas';
+
+        async function cargarProyectos() {
+            const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/`;
+            
+            try {
+                const response = await fetch(url);
+                const files = await response.json();
+                
+                const container = document.getElementById('project-list');
+                container.innerHTML = ''; // Borramos el mensaje de "Cargando"
+
+                files.forEach(file => {
+                    // Filtramos: solo archivos .html y que no sea el index
+                    if (file.name.endsWith('.html') && file.name.toLowerCase() !== 'index.html') {
+                        
+                        const link = document.createElement('a');
+                        link.href = file.name;
+                        link.className = 'app-link';
+
+                        // Lógica sencilla para poner iconos según el nombre
+                        let icon = '📄'; 
+                        const name = file.name.toLowerCase();
+                        if (name.includes('ruleta')) icon = '🎲';
+                        if (name.includes('flash')) icon = '🗂️';
+                        if (name.includes('qr') || name.includes('drive')) icon = '🔳';
+                        if (name.includes('quiz')) icon = '📝';
+
+                        // Limpiamos el nombre para que no se vea el ".html"
+                        const cleanName = file.name.replace('.html', '');
+
+                        link.innerHTML = `${icon} ${cleanName}`;
+                        container.appendChild(link);
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error cargando archivos:", error);
+                document.getElementById('loading').innerText = "Error al cargar los proyectos.";
+            }
+        }
+
+        cargarProyectos();
+    </script>
 
 </body>
 </html>
